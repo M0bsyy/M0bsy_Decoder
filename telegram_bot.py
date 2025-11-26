@@ -558,4 +558,50 @@ def file_handler(message):
             'decoder_marshal': ('Marshal', Decoder.marshal),
             'decoder_rot13': ('ROT13', Decoder.rot13),
             'decoder_url_decode': ('URL Decode', Decoder.url_decode),
-            'decoder_html_dec
+            'decoder_html_decode': ('HTML Decode', Decoder.html_decode),
+            'auto_detect_waiting': ('Auto-Detect', None),
+        }
+        
+        if state in decoders_map:
+            decoder_name, decoder_func = decoders_map[state]
+            
+            try:
+                content = downloaded_file.decode('utf-8')
+            except:
+                content = downloaded_file.hex()
+            
+            try:
+                if state == 'auto_detect_waiting':
+                    result, formats = Decoder.auto_decode(content)
+                else:
+                    result = decoder_func(content)
+                
+                output_filename = f"decoded_{filename}" if '.' in filename else f"decoded_{filename}.txt"
+                output_path = os.path.join(TEMP_DIR, output_filename)
+                
+                with open(output_path, 'w') as f:
+                    f.write(str(result))
+                
+                with open(output_path, 'rb') as f:
+                    bot.send_document(user_id, f, caption=f"✓ {decoder_name} Decoded\nFile: {output_filename}")
+                
+                os.remove(output_path)
+            except Exception as e:
+                bot.send_message(user_id, f"❌ Error: {str(e)[:200]}", reply_markup=get_main_keyboard())
+        else:
+            bot.send_message(user_id, f"✓ File received: {filename}\n\nChoose a decoder first!", reply_markup=get_main_keyboard())
+        
+        user_sessions[user_id]['state'] = 'menu'
+    except Exception as e:
+        bot.send_message(user_id, f"❌ Error: {str(e)[:200]}", reply_markup=get_main_keyboard())
+
+def main():
+    logger.info("🚀 Bot started! Polling for messages...")
+    try:
+        bot.infinity_polling()
+    except Exception as e:
+        logger.error(f"Error: {e}")
+        sys.exit(1)
+
+if __name__ == '__main__':
+    main()
