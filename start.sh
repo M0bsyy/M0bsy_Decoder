@@ -26,15 +26,15 @@ echo "🔍 Checking dependencies..."
 python3 -c "import telegram" 2>/dev/null
 
 if [ $? -ne 0 ]; then
-    echo "📦 python-telegram-bot not found, installing..."
+    echo "📦 Installing python-telegram-bot==20.7..."
     pip install python-telegram-bot==20.7
     
     if [ $? -ne 0 ]; then
         echo "❌ Failed to install python-telegram-bot"
-        echo "Install manually: pip install python-telegram-bot"
+        echo "Try manually: pip install python-telegram-bot"
         exit 1
     fi
-    echo "✓ Dependencies installed"
+    echo "✓ Dependencies installed successfully!"
 else
     echo "✓ All dependencies found"
 fi
