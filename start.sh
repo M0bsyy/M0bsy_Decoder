@@ -8,8 +8,38 @@ echo ""
 # Check if Python installed
 if ! command -v python3 &> /dev/null; then
     echo "❌ Python3 not found!"
+    echo "Install with: pkg install python3 (Termux) or apt install python3 (Linux)"
     exit 1
 fi
+
+echo "✓ Python $(python3 --version 2>&1 | cut -d' ' -f2) detected"
+
+# Check if pip installed
+if ! command -v pip &> /dev/null && ! command -v pip3 &> /dev/null; then
+    echo "❌ pip not found!"
+    echo "Install with: pkg install python3-pip (Termux) or apt install python3-pip (Linux)"
+    exit 1
+fi
+
+# Check if python-telegram-bot is installed
+echo "🔍 Checking dependencies..."
+python3 -c "import telegram" 2>/dev/null
+
+if [ $? -ne 0 ]; then
+    echo "📦 python-telegram-bot not found, installing..."
+    pip install python-telegram-bot==20.7
+    
+    if [ $? -ne 0 ]; then
+        echo "❌ Failed to install python-telegram-bot"
+        echo "Install manually: pip install python-telegram-bot"
+        exit 1
+    fi
+    echo "✓ Dependencies installed"
+else
+    echo "✓ All dependencies found"
+fi
+
+echo ""
 
 # Check if token setup done
 if [ ! -f .env ]; then
